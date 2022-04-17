@@ -1,4 +1,4 @@
-import 'package:jsonize/src/jsonize.dart';
+import 'package:jsonize/jsonize.dart';
 
 class MyClass {
   final String str;

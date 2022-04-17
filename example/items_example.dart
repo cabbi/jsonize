@@ -1,4 +1,4 @@
-import 'package:jsonize/src/jsonize.dart';
+import 'package:jsonize/jsonize.dart';
 
 class Item implements Jsonizable<Item> {
   final String code;
