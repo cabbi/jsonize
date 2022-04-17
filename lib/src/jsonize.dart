@@ -25,8 +25,18 @@ class Jsonize {
   /// Regiters a new type to the [Jsonize] convertion handling
   static void registerType(Type classType, String classTypeCode,
       ConvertFunction? toJsonFunc, ConvertFunction? fromJsonFunc) {
-    _encoders[classType] = _ConvertInfo(classTypeCode, toJsonFunc);
-    _decoders[classTypeCode] = _ConvertInfo(classTypeCode, fromJsonFunc);
+    // Some chechs on already registered types/classes
+    if (_encoders.containsKey(classType) &&
+        _encoders[classType]!.jsonClassCode != classTypeCode) {
+      throw "Class type '$classType' has already being registred with a different token! [${_encoders[classType]!.jsonClassCode} != $classTypeCode]";
+    }
+    if (_decoders.containsKey(classTypeCode) &&
+        _decoders[classTypeCode]!.classType != classType) {
+      throw "Class code '$classTypeCode' has already being registred with a different class! [${_decoders[classTypeCode]!.classType} != $classType]";
+    }
+    _encoders[classType] = _ConvertInfo(classType, classTypeCode, toJsonFunc);
+    _decoders[classTypeCode] =
+        _ConvertInfo(classType, classTypeCode, fromJsonFunc);
   }
 
   /// Regiters a new [Jsonizable] class by it instance.
@@ -57,14 +67,14 @@ class Jsonize {
 
   /// The encode functions map
   static final Map<Type, _ConvertInfo> _encoders = {
-    DateTime:
-        _ConvertInfo(DateTimeJsonable.jsonClassCode, DateTimeJsonable.toJson),
+    DateTime: _ConvertInfo(
+        DateTime, DateTimeJsonable.jsonClassCode, DateTimeJsonable.toJson),
   };
 
   /// The decode functions map
   static final Map<String, _ConvertInfo> _decoders = {
-    DateTimeJsonable.jsonClassCode:
-        _ConvertInfo(DateTimeJsonable.jsonClassCode, DateTimeJsonable.fromJson),
+    DateTimeJsonable.jsonClassCode: _ConvertInfo(
+        DateTime, DateTimeJsonable.jsonClassCode, DateTimeJsonable.fromJson),
   };
 
   /// A convert helper function
@@ -157,7 +167,8 @@ class DateTimeJsonable {
 
 /// Internal class to keep convertion functions
 class _ConvertInfo {
+  final Type classType;
   final String jsonClassCode;
   final dynamic convert;
-  _ConvertInfo(this.jsonClassCode, this.convert);
+  _ConvertInfo(this.classType, this.jsonClassCode, this.convert);
 }

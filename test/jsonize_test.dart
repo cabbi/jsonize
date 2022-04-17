@@ -1,4 +1,3 @@
-import 'package:jsonize/jsonize.dart';
 import 'package:test/test.dart';
 
 void main() {

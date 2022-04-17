@@ -38,6 +38,8 @@ void main() {
   var myDeserializedMap = Jsonize.fromJson(jsonRep);
 '''
 
+[Jsonize.toJson] allows indentation for a bigger but more user readable json string.
+
 For more comples examples like subclasses, please refer to the examples section.
 
 ## Additional information

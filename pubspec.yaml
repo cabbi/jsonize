@@ -1,6 +1,7 @@
 name: jsonize
 description: A json serializer class
 version: 1.0.0
+homepage: http://cabella.net
 
 environment:
   sdk: '>=2.16.1 <3.0.0'
