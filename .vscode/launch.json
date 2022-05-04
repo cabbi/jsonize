@@ -9,6 +9,18 @@
             "type": "dart",
             "request": "launch",
             "program": "example\\items_example.dart"
+        },
+        {
+            "name": "simple_jsonizable_example",
+            "type": "dart",
+            "request": "launch",
+            "program": "example\\simple_jsonizable_example.dart"
+        },
+        {
+            "name": "simple_register_example",
+            "type": "dart",
+            "request": "launch",
+            "program": "example\\simple_register_example.dart"
         }
     ]
 }

@@ -63,7 +63,10 @@ void main() {
     "dt_item": DateTimeItem("Now", DateTime.now()),
     "color_item": ColorItem("Red", 255, 0, 0)
   };
-  var jsonRep = Jsonize.toJson(myMap);
-  var hereIsMyMap = Jsonize.fromJson(jsonRep);
+
+  var jsonRep = Jsonize.toJson(myMap,
+      jsonClassToken: "!", dateTimeFormat: DateTimeFormat.epoch);
+  var hereIsMyMap = Jsonize.fromJson(jsonRep,
+      jsonClassToken: "!", dateTimeFormat: DateTimeFormat.epoch);
   print(hereIsMyMap);
 }
