@@ -92,11 +92,13 @@ class JsonizeSession {
   final String jsonClassToken;
   final Map<Type, ConvertInfo> _encoders = {};
   final Map<String, ConvertInfo> _decoders = {};
+  final CallbackFunction? convertCallback;
 
   JsonizeSession(
       {String? jsonClassToken,
       String? dtClassCode,
-      DateTimeFormat? dateTimeFormat})
+      DateTimeFormat? dateTimeFormat,
+      this.convertCallback})
       : jsonClassToken = jsonClassToken ?? Jsonize.jsonClassToken {
     DateTimeJsonable dt = DateTimeJsonable(
         jsonClassCode: dtClassCode ?? "dt",
@@ -130,6 +132,9 @@ class JsonizeSession {
       if (classType != null) {
         var convertInfo = _decoders[classType];
         if (convertInfo != null) {
+          if (convertCallback != null) {
+            value = convertCallback!(convertInfo.classType, value);
+          }
           return convertInfo.convert(value);
         }
       }
@@ -145,10 +150,11 @@ class JsonizeSession {
 
   /// A convert helper function
   dynamic _convert(ConvertInfo info, dynamic object) {
-    if (object is Jsonizable) {
-      return object.toJson();
-    }
-    return info.convert(object);
+    dynamic jsonObj =
+        object is Jsonizable ? object.toJson() : info.convert(object);
+    return convertCallback == null
+        ? jsonObj
+        : convertCallback!(info.classType, jsonObj);
   }
 
   /// Makes a class token string

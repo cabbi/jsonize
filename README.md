@@ -55,17 +55,20 @@ static String toJson(dynamic value,
       {String? indent,
        String? jsonClassToken,
        String? dtClassCode,
-       DateTimeFormat? dateTimeFormat})
+       DateTimeFormat? dateTimeFormat,
+       CallbackFunction? convertCallback})
 ```
 
 Transforms an object/structure of objects into a json string applying the class tokens in order to revert back your original objects.
 
 #### Parameters:
+
 - **_value_**: the value you want to transform to json string.
 - **_indent_**: The indentation token. If omitted no indentation is used (space saving!).
 - **_jsonClassToken_**: The token used by **Jsonize** to identify a serialized object.
 - **_dtClassCode_**: The code used to serialize **DateTime** objects.
 - **_dateTimeFormat_**: The **DateTime** serialization format (see **DateTimeFormat** enum).
+- **_convertCallback_**: An optional function called before returning the object's encoded json representation.
 
 ## fromJson
 
@@ -73,16 +76,19 @@ Transforms an object/structure of objects into a json string applying the class 
   static dynamic fromJson(dynamic value,
       {String? jsonClassToken,
        String? dtClassCode,
-       DateTimeFormat? dateTimeFormat})
+       DateTimeFormat? dateTimeFormat,
+       CallbackFunction? convertCallback})
 ```
 
 Transforms a json string back to an object/structure of objects.
 
 #### Parameters:
+
 - **_value_**: the value you want to transform to json string.
 - **_jsonClassToken_**: The token used by **Jsonize** to identify a serialized object.
 - **_dtClassCode_**: The code used to serialize **DateTime** objects.
 - **_dateTimeFormat_**: The **DateTime** serialization format (see **DateTimeFormat** enum).
+- **_convertCallback_**: An optional function called before decoding the json representation into the object.
 
 ## registerClass
 
@@ -93,6 +99,7 @@ static void registerClass(Jsonizable object)
 Registers a new **Jsonizable** class by it instance.
 
 #### Parameters:
+
 - **_object_**: the class instance **jsonize** will be able to serialize.
 
 ## registerClasses
@@ -104,6 +111,7 @@ static void registerClasses(Iterable<Jsonizable> objects)
 Registers new **Jsonizable** classes by it instances.
 
 #### Parameters:
+
 - **_objects_**: the class instances **jsonize** will be able to serialize.
 
 ## registerType
@@ -118,6 +126,7 @@ static void registerType(Type classType,
 Registers a new type to the **Jsonize** conversion handling (i.e. used for classes that does not implement **Jsonizable** interface)
 
 #### Parameters:
+
 - **_type_**: the type **jsonize** will be able to serialize.
 - **_classTypeCode_**: the class type token **jsonize** will use to identify this object type/class.
 - **_toJsonFunc_**: the json encoder function.

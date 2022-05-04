@@ -3,7 +3,10 @@ import 'dart:convert';
 import 'helpers.dart';
 
 /// The encode and decode function prototype
-typedef ConvertFunction = dynamic Function(dynamic object);
+typedef ConvertFunction = dynamic Function(dynamic);
+
+/// The encode and decode callback function prototype
+typedef CallbackFunction = dynamic Function(Type, dynamic);
 
 /// The [DateTime] serialization format
 ///
@@ -55,7 +58,7 @@ class Jsonize {
     if (decoders.containsKey(classTypeCode) &&
         decoders[classTypeCode]!.classType != classType) {
       throw JsonizeException(
-          "Class code '$classTypeCode' has already being registred with a"
+          "Class code '$classTypeCode' has already being registered with a"
           " different class! [${decoders[classTypeCode]!.classType}"
           " != $classType]");
     }
@@ -82,12 +85,14 @@ class Jsonize {
       {String? indent,
       String? jsonClassToken,
       String? dtClassCode,
-      DateTimeFormat? dateTimeFormat}) {
+      DateTimeFormat? dateTimeFormat,
+      CallbackFunction? convertCallback}) {
     // Create a new session with requested parameters
     JsonizeSession session = JsonizeSession(
         jsonClassToken: jsonClassToken,
         dtClassCode: dtClassCode,
-        dateTimeFormat: dateTimeFormat);
+        dateTimeFormat: dateTimeFormat,
+        convertCallback: convertCallback);
     // Encode with the current session settings
     JsonEncoder encoder = indent == null
         ? JsonEncoder(session.toEncodable)
@@ -99,12 +104,14 @@ class Jsonize {
   static dynamic fromJson(dynamic value,
       {String? jsonClassToken,
       String? dtClassCode,
-      DateTimeFormat? dateTimeFormat}) {
+      DateTimeFormat? dateTimeFormat,
+      CallbackFunction? convertCallback}) {
     // Create a new session with requested parameters
     JsonizeSession session = JsonizeSession(
         jsonClassToken: jsonClassToken,
         dtClassCode: dtClassCode,
-        dateTimeFormat: dateTimeFormat);
+        dateTimeFormat: dateTimeFormat,
+        convertCallback: convertCallback);
     // Decode with the current session settings
     return jsonDecode(value, reviver: session.reviver);
   }
