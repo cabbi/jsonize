@@ -1,3 +1,7 @@
+## 1.3.0
+
+- Added 'Clonable' interface to simplify the definition of a Jsonizable class.  
+
 ## 1.2.0
 
 - Added 'convertCallback' to the 'toJson' and 'fromJson' methods to enable custom transformation of the object json representation.

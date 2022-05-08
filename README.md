@@ -15,7 +15,7 @@ By default **Jsonize** supports **DateTime** serialization in any place of your 
   var myDeserializedList = Jsonize.fromJson(jsonRep);
 ```
 
-**Jsonize** also supports your own classes. You can register a type or let your class implement the **Jsonizable** interface.
+**Jsonize** also supports your own classes. You can register a type or let your class implement one of the **Jsonizable** or **Clonable** interfaces.
 
 ```dart
 class MyClass implements Jsonizable<MyClass> {
@@ -44,6 +44,61 @@ void main() {
   var myDeserializedMap = Jsonize.fromJson(jsonRep);
 ```
 
+The **Clonable** interface is more compact, you only have to define fields of your object.
+Since it has to set object variables after creation you can not define them as 'final'.
+On the other hand the advantage is that you can define optional default values which will 
+not be set into the final json representation in order to save space.
+
+``` dart
+import 'package:jsonize/jsonize.dart';
+
+class ColorItem extends Clonable<ColorItem> {
+  String name;
+  int r, g, b;
+  ColorItem(this.name, this.r, this.g, this.b);
+  factory ColorItem.empty() => ColorItem("", 0, 0, 0);
+
+  @override
+  String toString() => "$name - $r.$g.$b";
+
+  // Clonable implementation
+  @override
+  String get jsonClassCode => "colItem";
+
+  @override
+  ColorItem empty() => ColorItem.empty();
+
+  @override
+  CloneFields get fields => CloneFields([
+        CloneField(name: "name", getter: () => name, setter: (v) => name = v),
+        CloneField(
+            name: "r", getter: () => r, setter: (v) => r = v, defaultValue: 0),
+        CloneField(
+            name: "g", getter: () => g, setter: (v) => g = v, defaultValue: 0),
+        CloneField(
+            name: "b", getter: () => b, setter: (v) => b = v, defaultValue: 0)
+      ]);
+}
+
+void main() {
+  // Register classes
+  Jsonize.registerClass(ColorItem.empty());
+
+  List myList = [
+    ColorItem("Red", 255, 0, 0),
+    ColorItem("Blue", 0, 0, 255),
+    ColorItem("Gray", 128, 128, 128)
+  ];
+
+  // Zeros will not be serialized since they are defined as default value.
+  // This way you might save json data storage space.
+  var jsonRep = Jsonize.toJson(myList,
+      jsonClassToken: "!", dateTimeFormat: DateTimeFormat.epoch);
+  var backToLife = Jsonize.fromJson(jsonRep,
+      jsonClassToken: "!", dateTimeFormat: DateTimeFormat.epoch);
+  print(backToLife);
+}
+```
 For more complex cases like subclasses, please refer to the examples section.
 
 # Jsonize methods
@@ -139,7 +194,7 @@ Registers a new type to the **Jsonize** conversion handling (i.e. used for class
 - **_string_**: a human readable date time string representation.
 - **_stringWithMillis_**: a human readable date time string representation with milliseconds.
 - **_stringWithMicros_**: a human readable date time string representation with microseconds.
-- **_epoch_**: a number representing the seconds since the "Unix epoch" 1970-01-01T00:00:00 (json space safer!).
+- **_epoch_**: a number representing the seconds since the "Unix epoch" 1970-01-01T00:00:00 (json space saver!).
 - **_epochWithMillis_**: a number representing the milliseconds since the "Unix epoch" 1970-01-01T00:00:00.
 - **_epochWithMicros_**: a number representing the microseconds since the "Unix epoch" 1970-01-01T00:00:00.
 

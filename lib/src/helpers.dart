@@ -1,3 +1,4 @@
+import '../jsonize.dart';
 import 'jsonize.dart';
 
 /// The class used to register [DateTime] type serialization
@@ -22,7 +23,8 @@ class DateTimeJsonable {
       case DateTimeFormat.epochWithMicros:
         return v.microsecondsSinceEpoch;
       default:
-        throw JsonizeException("DateTime->toJson: '$format' DateTime format!");
+        throw JsonizeException(
+            "DateTimeJsonable", "toJson: '$format' DateTime format!");
     }
   }
 
@@ -34,25 +36,29 @@ class DateTimeJsonable {
         if (v is String) {
           return DateTime.tryParse(v.toString());
         }
-        throw JsonizeException("DateTime->fromJson: String value expected!");
+        throw JsonizeException(
+            "DateTimeJsonable", "fromJson: String value expected!");
       case DateTimeFormat.epoch:
         if (v is int) {
           return DateTime.fromMillisecondsSinceEpoch(v * 1000, isUtc: false);
         }
-        throw JsonizeException("DateTime->fromJson: Integer value expected!");
+        throw JsonizeException(
+            "DateTimeJsonable", "fromJson: Integer value expected!");
       case DateTimeFormat.epochWithMillis:
         if (v is int) {
           return DateTime.fromMillisecondsSinceEpoch(v, isUtc: false);
         }
-        throw JsonizeException("DateTime->fromJson: Integer value expected!");
+        throw JsonizeException(
+            "DateTimeJsonable", "fromJson: Integer value expected!");
       case DateTimeFormat.epochWithMicros:
         if (v is int) {
           return DateTime.fromMicrosecondsSinceEpoch(v, isUtc: false);
         }
-        throw JsonizeException("DateTime->fromJson: Integer value expected!");
+        throw JsonizeException(
+            "DateTimeJsonable", "fromJson: Integer value expected!");
       default:
         throw JsonizeException(
-            "DateTime->fromJson: '$format' DateTime format!)");
+            "DateTimeJsonable", "fromJson: '$format' DateTime format!)");
     }
   }
 
@@ -60,8 +66,8 @@ class DateTimeJsonable {
     if (num >= 0) {
       return num.toString().padLeft(pad, "0");
     }
-    throw JsonizeException(
-        "DateTime->padDigits: DateTime does not handle nevative values!");
+    throw JsonizeException("DateTimeJsonable",
+        "padDigits: DateTime does not handle nevative values!");
   }
 
   String _toString(DateTime v, bool withMillis) {

@@ -72,23 +72,32 @@ void main() {
 }
 ```
 
-## A more complex example  
+## A more complex example using the 'Clonable' interface
 ```dart
 import 'package:jsonize/jsonize.dart';
 
-class Item implements Jsonizable<Item> {
-  final String code;
+class Item extends Clonable<Item> {
+  String code;
 
   Item(this.code);
   factory Item.empty() => Item("");
+  static CloneFields getFields(Item o) => CloneFields([
+        CloneField(
+            name: "code", getter: () => o.code, setter: (v) => o.code = v)
+      ]);
 
-  // Jsonizable implementation
+  @override
+  String toString() => code;
+
+  // Clonable implementation
   @override
   String get jsonClassCode => "item";
+
   @override
-  Map<String, dynamic> toJson() => {"code": code};
+  Item empty() => Item.empty();
+
   @override
-  Item? fromJson(value) => Item(value["code"]);
+  CloneFields get fields => Item.getFields(this);
 }
 
 class DateTimeItem extends Item {
@@ -96,37 +105,48 @@ class DateTimeItem extends Item {
   DateTimeItem(String code, this.dt) : super(code);
   factory DateTimeItem.empty() => DateTimeItem("", DateTime(0));
 
-  // Jsonizable implementation
+  @override
+  String toString() => "$code - $dt";
+
+  // Clonable implementation
   @override
   String get jsonClassCode => "dtItem";
 
   @override
-  Map<String, dynamic> toJson() => super.toJson()..["dt"] = dt;
+  DateTimeItem empty() => DateTimeItem.empty();
 
   @override
-  DateTimeItem? fromJson(value) => DateTimeItem(value["code"], value["dt"]);
+  CloneFields get fields => Item.getFields(this)
+    ..add(CloneField(name: "dt", getter: () => dt, setter: (v) => dt = v));
 }
 
 class ColorItem extends Item {
-  final int r;
-  final int g;
-  final int b;
+  int r;
+  int g;
+  int b;
   ColorItem(String code, this.r, this.g, this.b) : super(code);
   factory ColorItem.empty() => ColorItem("", 0, 0, 0);
 
-  // Jsonizable implementation
+  @override
+  String toString() => "$code - $r.$g.$b";
+
+  // Clonable implementation
   @override
   String get jsonClassCode => "colItem";
 
   @override
-  Map<String, dynamic> toJson() => super.toJson()
-    ..["r"] = r
-    ..["g"] = g
-    ..["b"] = b;
+  ColorItem empty() => ColorItem.empty();
 
   @override
-  ColorItem? fromJson(value) =>
-      ColorItem(value["code"], value["r"], value["g"], value["b"]);
+  CloneFields get fields => Item.getFields(this)
+    ..addAll([
+      CloneField(
+          name: "r", getter: () => r, setter: (v) => r = v, defaultValue: 0),
+      CloneField(
+          name: "g", getter: () => g, setter: (v) => g = v, defaultValue: 0),
+      CloneField(
+          name: "b", getter: () => b, setter: (v) => b = v, defaultValue: 0)
+    ]);
 }
 
 void main() {
@@ -134,15 +154,20 @@ void main() {
   Jsonize.registerClasses(
       [Item.empty(), DateTimeItem.empty(), ColorItem.empty()]);
 
-  Map<String, dynamic> myMap = {
-    "item": Item("A base item"),
-    "dt_item": DateTimeItem("Now", DateTime.now()),
-    "color_item": ColorItem("Red", 255, 0, 0)
-  };
-  var jsonRep = Jsonize.toJson(myMap,
+  List myList = [
+    Item("A base item"),
+    DateTimeItem("Now", DateTime.now()),
+    DateTimeItem("A Date", DateTime(2022, 4, 20)),
+    ColorItem("Red", 255, 0, 0),
+    ColorItem("Blue", 0, 0, 255),
+    ColorItem("Gray", 128, 128, 128)
+  ];
+
+  var jsonRep = Jsonize.toJson(myList,
       jsonClassToken: "!", dateTimeFormat: DateTimeFormat.epoch);
-  var hereIsMyMap = Jsonize.fromJson(jsonRep,
+  var backToLife = Jsonize.fromJson(jsonRep,
       jsonClassToken: "!", dateTimeFormat: DateTimeFormat.epoch);
-  print(hereIsMyMap);
+  print(backToLife);
 }
+
 ```

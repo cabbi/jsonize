@@ -21,6 +21,12 @@
             "type": "dart",
             "request": "launch",
             "program": "example\\simple_register_example.dart"
+        },
+        {
+            "name": "simple_color_example",
+            "type": "dart",
+            "request": "launch",
+            "program": "example\\simple_color_example.dart"
         }
     ]
 }

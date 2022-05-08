@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import '../jsonize.dart';
 import 'helpers.dart';
 
 /// The encode and decode function prototype
@@ -16,7 +17,7 @@ typedef CallbackFunction = dynamic Function(Type, dynamic);
 /// - [stringWithMicros] a human readable date time string representation
 ///   with microseconds
 /// - [epoch] a number representing the seconds since the "Unix epoch"
-///   1970-01-01T00:00:00Z (json space safer!)
+///   1970-01-01T00:00:00Z (json space saver!)
 /// - [epochWithMillis] a number representing the milliseconds since the
 ///   "Unix epoch" 1970-01-01T00:00:00Z
 /// - [epochWithMicros] a number representing the microseconds since the
@@ -52,15 +53,17 @@ class Jsonize {
     if (encoders.containsKey(classType) &&
         encoders[classType]!.jsonClassCode != classTypeCode) {
       throw JsonizeException(
+          "registerType",
           "Class type '$classType' has already being registred with a different"
-          " token! [${encoders[classType]!.jsonClassCode} != $classTypeCode]");
+              " token! [${encoders[classType]!.jsonClassCode} != $classTypeCode]");
     }
     if (decoders.containsKey(classTypeCode) &&
         decoders[classTypeCode]!.classType != classType) {
       throw JsonizeException(
+          "registerType",
           "Class code '$classTypeCode' has already being registered with a"
-          " different class! [${decoders[classTypeCode]!.classType}"
-          " != $classType]");
+              " different class! [${decoders[classTypeCode]!.classType}"
+              " != $classType]");
     }
     encoders[classType] = ConvertInfo(classType, classTypeCode, toJsonFunc);
     decoders[classTypeCode] =
@@ -147,12 +150,4 @@ abstract class Jsonizable<T> {
   String get jsonClassCode;
   dynamic toJson();
   T? fromJson(dynamic value);
-}
-
-/// The [Jsonize] package exception class
-class JsonizeException implements Exception {
-  final String msg;
-  const JsonizeException(this.msg);
-  @override
-  String toString() => '[Jsonize] $msg';
 }
