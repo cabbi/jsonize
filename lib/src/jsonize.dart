@@ -1,12 +1,21 @@
 import 'dart:convert';
 
+import '../jsonize.dart';
 import 'helpers.dart';
 
 /// The encode and decode function prototype
 typedef ConvertFunction = dynamic Function(dynamic);
 
 /// The encode and decode callback function prototype
-typedef CallbackFunction = dynamic Function(Type, dynamic);
+///
+/// This callback provides:
+/// - [type] of the serializing object
+/// - [json] representation of the serializing object
+/// - the [Jsonizable] or [Clonable] object [obj] to be encoded to json or the
+///   empty object during decoding from json.
+///   NOTE: [obj] is null if 'registerType' has been used
+typedef CallbackFunction = dynamic Function(
+    Type type, dynamic json, Jsonizable? obj);
 
 /// The [DateTime] serialization format
 ///
@@ -16,7 +25,7 @@ typedef CallbackFunction = dynamic Function(Type, dynamic);
 /// - [stringWithMicros] a human readable date time string representation
 ///   with microseconds
 /// - [epoch] a number representing the seconds since the "Unix epoch"
-///   1970-01-01T00:00:00Z (json space safer!)
+///   1970-01-01T00:00:00Z (json space saver!)
 /// - [epochWithMillis] a number representing the milliseconds since the
 ///   "Unix epoch" 1970-01-01T00:00:00Z
 /// - [epochWithMicros] a number representing the microseconds since the
@@ -29,6 +38,23 @@ enum DateTimeFormat {
   epochWithMillis,
   epochWithMicros
 }
+
+/// The [Enum] serialization format
+///
+/// - [string] the text of the enum item
+/// - [indexOf] the index of the enum item
+///
+/// Both formats have pro & cons.
+/// [string]
+/// - it is space consuming since it's the text of the item
+/// - you can not change the item text
+/// - you can add new items without warring about its position
+/// [indexOf]
+/// - it saves space since it is only a number
+/// - you can change the item text
+/// - you can not add new items without warring about its position
+///
+enum EnumFormat { string, indexOf }
 
 /// The [Jsonize] class used to transform to and from json string
 class Jsonize {
@@ -45,32 +71,33 @@ class Jsonize {
   /// ```
   static String jsonClassToken = "jt#";
 
-  /// Registers a new type to the [Jsonize] conversion handling
+  /// Registers a new [Enum] type.
+  static void registerEnum<T>(List<T> values,
+      {String? jsonEnumCode, EnumFormat enumFormat = EnumFormat.string}) {
+    Type type = values.first.runtimeType;
+    jsonEnumCode = jsonEnumCode ?? "e#$type";
+    if (enumFormat == EnumFormat.string) {
+      Jsonize.registerType(type, jsonEnumCode, (o) => _enumToString(o),
+          (o) => values.singleWhere((i) => o == _enumToString(i)));
+    } else {
+      Jsonize.registerType(
+          type, jsonEnumCode, (o) => values.indexOf(o), (o) => values[o]);
+    }
+  }
+
+  /// Converts an enum item into a string
+  static String _enumToString(dynamic o) => o.toString().split(".")[1];
+
+  /// Registers a new type to the [Jsonize] conversion handling.
   static void registerType(Type classType, String classTypeCode,
       ConvertFunction? toJsonFunc, ConvertFunction? fromJsonFunc) {
-    // Some checks on already registered types/classes
-    if (encoders.containsKey(classType) &&
-        encoders[classType]!.jsonClassCode != classTypeCode) {
-      throw JsonizeException(
-          "Class type '$classType' has already being registred with a different"
-          " token! [${encoders[classType]!.jsonClassCode} != $classTypeCode]");
-    }
-    if (decoders.containsKey(classTypeCode) &&
-        decoders[classTypeCode]!.classType != classType) {
-      throw JsonizeException(
-          "Class code '$classTypeCode' has already being registered with a"
-          " different class! [${decoders[classTypeCode]!.classType}"
-          " != $classType]");
-    }
-    encoders[classType] = ConvertInfo(classType, classTypeCode, toJsonFunc);
-    decoders[classTypeCode] =
-        ConvertInfo(classType, classTypeCode, fromJsonFunc);
+    _register(classType, classTypeCode, toJsonFunc, fromJsonFunc);
   }
 
   /// Registers a new [Jsonizable] class by it instance.
   static void registerClass(Jsonizable object) {
-    registerType(
-        object.runtimeType, object.jsonClassCode, null, object.fromJson);
+    _register(object.runtimeType, object.jsonClassCode, null, object.fromJson,
+        object);
   }
 
   /// Registers new [Jsonizable] classes by it instances.
@@ -80,12 +107,39 @@ class Jsonize {
     }
   }
 
+  /// The common register method
+  static void _register(Type classType, String classTypeCode,
+      ConvertFunction? toJsonFunc, ConvertFunction? fromJsonFunc,
+      [Jsonizable? emptyObj]) {
+    // Some checks on already registered types/classes
+    if (encoders.containsKey(classType) &&
+        encoders[classType]!.jsonClassCode != classTypeCode) {
+      throw JsonizeException(
+          "registerType",
+          "Class type '$classType' has already being registered with a"
+              " different token! [${encoders[classType]!.jsonClassCode}"
+              " != $classTypeCode]");
+    }
+    if (decoders.containsKey(classTypeCode) &&
+        decoders[classTypeCode]!.classType != classType) {
+      throw JsonizeException(
+          "registerType",
+          "Class code '$classTypeCode' has already being registered with a"
+              " different class! [${decoders[classTypeCode]!.classType}"
+              " != $classType]");
+    }
+    encoders[classType] =
+        ConvertInfo(classType, classTypeCode, toJsonFunc, emptyObj);
+    decoders[classTypeCode] =
+        ConvertInfo(classType, classTypeCode, fromJsonFunc, emptyObj);
+  }
+
   /// The [toJson] function transforms an object into a json string.
   static String toJson(dynamic value,
       {String? indent,
       String? jsonClassToken,
       String? dtClassCode,
-      DateTimeFormat? dateTimeFormat,
+      DateTimeFormat dateTimeFormat = DateTimeFormat.string,
       CallbackFunction? convertCallback}) {
     // Create a new session with requested parameters
     JsonizeSession session = JsonizeSession(
@@ -104,7 +158,7 @@ class Jsonize {
   static dynamic fromJson(dynamic value,
       {String? jsonClassToken,
       String? dtClassCode,
-      DateTimeFormat? dateTimeFormat,
+      DateTimeFormat dateTimeFormat = DateTimeFormat.string,
       CallbackFunction? convertCallback}) {
     // Create a new session with requested parameters
     JsonizeSession session = JsonizeSession(
@@ -147,12 +201,4 @@ abstract class Jsonizable<T> {
   String get jsonClassCode;
   dynamic toJson();
   T? fromJson(dynamic value);
-}
-
-/// The [Jsonize] package exception class
-class JsonizeException implements Exception {
-  final String msg;
-  const JsonizeException(this.msg);
-  @override
-  String toString() => '[Jsonize] $msg';
 }

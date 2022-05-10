@@ -1,5 +1,7 @@
 import 'package:jsonize/jsonize.dart';
 
+enum Color { red, blue, green, gray, yellow }
+
 class MyClass implements Jsonizable<MyClass> {
   String? str;
   MyClass([this.str]);
@@ -15,12 +17,14 @@ class MyClass implements Jsonizable<MyClass> {
 }
 
 void main() {
-  // Register classes
+  // Register enums and classes
+  Jsonize.registerEnum(Color.values);
   Jsonize.registerClass(MyClass.empty());
 
   Map<String, dynamic> myMap = {
     "my_num": 1,
     "my_str": "Hello!",
+    "my_color": Color.green,
     "my_dt": DateTime.now(),
     "my_class": MyClass("here I am!")
   };

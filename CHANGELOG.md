@@ -1,3 +1,9 @@
+## 1.3.0
+
+- Added enum serialization via 'registerEnum'
+- Added 'Clonable' interface to simplify the definition of a Jsonizable class.  
+- Modified the 'CallbackFunction' prototype by adding the object as last parameter
+
 ## 1.2.0
 
 - Added 'convertCallback' to the 'toJson' and 'fromJson' methods to enable custom transformation of the object json representation.
