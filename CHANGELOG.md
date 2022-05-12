@@ -1,3 +1,7 @@
+## 1.4.0
+
+- Added 'enhanced enums' handling (new in dart 2.17 release) using the 'JsonizableEnum' interface.
+
 ## 1.3.0
 
 - Added enum serialization via 'registerEnum'

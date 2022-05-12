@@ -56,6 +56,16 @@ enum DateTimeFormat {
 ///
 enum EnumFormat { string, indexOf }
 
+/// [EnumJson] allows extending your enums and provide an unmutable value
+/// for each of your enum items. This allows you to altering your enumeration by
+/// changing names or adding new values but keeping your jsonized values safe.
+abstract class JsonizableEnum {
+  dynamic get jsonValue;
+
+  static T fromValue<T extends JsonizableEnum>(List<T> values, jsonValue) =>
+      values.singleWhere((i) => jsonValue == i.jsonValue);
+}
+
 /// The [Jsonize] class used to transform to and from json string
 class Jsonize {
   /// The class token (you can change this token at runtime)
@@ -72,11 +82,19 @@ class Jsonize {
   static String jsonClassToken = "jt#";
 
   /// Registers a new [Enum] type.
-  static void registerEnum<T>(List<T> values,
+  ///
+  /// You can register standard enums or 'enhanced enums' handling (new in dart
+  /// 2.17 release) using the [JsonizableEnum] interface.
+  /// If the registered enum implements [JsonizableEnum] then the [enumFormat]
+  /// parameter is ignored.
+  static void registerEnum(List values,
       {String? jsonEnumCode, EnumFormat enumFormat = EnumFormat.string}) {
     Type type = values.first.runtimeType;
     jsonEnumCode = jsonEnumCode ?? "e#$type";
-    if (enumFormat == EnumFormat.string) {
+    if (values.first is JsonizableEnum) {
+      Jsonize.registerType(type, jsonEnumCode, (o) => o.jsonValue,
+          (o) => values.singleWhere((i) => o == i.jsonValue));
+    } else if (enumFormat == EnumFormat.string) {
       Jsonize.registerType(type, jsonEnumCode, (o) => _enumToString(o),
           (o) => values.singleWhere((i) => o == _enumToString(i)));
     } else {

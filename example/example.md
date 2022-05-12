@@ -1,8 +1,19 @@
-## Implementing the Jsonizable interface 
+## Implementing the Jsonizable interfaces for classes and enums 
 ```dart
 import 'package:jsonize/jsonize.dart';
 
-enum Color { red, blue, green, gray, yellow }
+enum Color with JsonizableEnum {
+  /// The [jsonValue] must not change in time!
+  red(10), // Can be numbers
+  blue(20),
+  green("myGreen"), // Can be strings as well
+  gray(40),
+  yellow(50);
+
+  @override
+  final dynamic jsonValue;
+  const Color(this.jsonValue);
+}
 
 class MyClass implements Jsonizable<MyClass> {
   String? str;
