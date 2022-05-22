@@ -111,12 +111,8 @@ class CloneField<T> {
       {CloneGetterFunction? getter,
       CloneSetterFunction? setter,
       this.defaultValue}) {
-    if (getter != null) {
-      this.getter = getter;
-    }
-    if (setter != null) {
-      this.setter = setter;
-    }
+    this.getter = getter ?? () => null;
+    this.setter = setter ?? (_) {};
   }
 
   /// True if the filed holds a nullable type

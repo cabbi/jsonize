@@ -166,7 +166,8 @@ Transforms a JSON string back to an object/structure of objects.
 ```dart
   static void registerEnum<T>(List<T> values,
       {String? jsonEnumCode, 
-      EnumFormat enumFormat = EnumFormat.string}) {
+      EnumFormat enumFormat = EnumFormat.string,
+      Enum? unknownEnumValue}) {
 ```
 
 Registers a new **Enum** type.
@@ -175,6 +176,8 @@ Registers a new **Enum** type.
 - **_values_**: The values of the enumeration type (i.e. myEnum.values).
 - **_jsonEnumCode_**: An optional code used to serialize these **Enum** items. If not provided the Enum name will be taken.
 - **_enumFormat_**: The serialization format (see **EnumFormat**).
+- **_unknownEnumValue_**: This optional parameter is used during decoding in case of an unrecognized value. This can happen if an old json holds a removed enum.
+  Note: 'unknownEnumValue' is not applicable to 'EnumFormat.indexOf'
 
 ## registerClass
 ```dart

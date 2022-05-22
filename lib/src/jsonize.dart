@@ -87,16 +87,41 @@ class Jsonize {
   /// 2.17 release) using the [JsonizableEnum] interface.
   /// If the registered enum implements [JsonizableEnum] then the [enumFormat]
   /// parameter is ignored.
-  static void registerEnum(List values,
-      {String? jsonEnumCode, EnumFormat enumFormat = EnumFormat.string}) {
+  /// The [unknownEnumValue] is used during decoding in case of an unrecognized
+  /// value. This can happen if an old json holds a removed enum.
+  /// [unknownEnumValue] is not applicable to [EnumFormat.indexOf]!
+  static void registerEnum<T>(List<T> values,
+      {String? jsonEnumCode,
+      EnumFormat enumFormat = EnumFormat.string,
+      Enum? unknownEnumValue}) {
+    // Parameters check
+    if (enumFormat == EnumFormat.indexOf && unknownEnumValue != null) {
+      throw JsonizeException("registerEnum",
+          "EnumFormat.indexOf does not support 'unknownEnumValue' parameter!");
+    }
+    // Enum types
     Type type = values.first.runtimeType;
     jsonEnumCode = jsonEnumCode ?? "e#$type";
+    // unknownEnumValue handling function
+    T orElse(o) => unknownEnumValue != null
+        ? unknownEnumValue as T
+        : (throw JsonizeException(
+            "Enum decoding", "'$o' is not a defined value of '$type'"));
+    // Register the enum type
     if (values.first is JsonizableEnum) {
-      Jsonize.registerType(type, jsonEnumCode, (o) => o.jsonValue,
-          (o) => values.singleWhere((i) => o == i.jsonValue));
+      Jsonize.registerType(
+          type,
+          jsonEnumCode,
+          (o) => o.jsonValue,
+          (o) => values.singleWhere((i) => o == (i as JsonizableEnum).jsonValue,
+              orElse: () => orElse(o)));
     } else if (enumFormat == EnumFormat.string) {
-      Jsonize.registerType(type, jsonEnumCode, (o) => _enumToString(o),
-          (o) => values.singleWhere((i) => o == _enumToString(i)));
+      Jsonize.registerType(
+          type,
+          jsonEnumCode,
+          (o) => _enumToString(o),
+          (o) => values.singleWhere((i) => o == _enumToString(i),
+              orElse: () => orElse(o)));
     } else {
       Jsonize.registerType(
           type, jsonEnumCode, (o) => values.indexOf(o), (o) => values[o]);

@@ -1,3 +1,8 @@
+## 1.4.1
+
+- Added 'unknownEnumValue' parameter to 'registerEnum' to handle unrecognized json values
+- Assigned default getter & setter to 'CloneField' instance  
+
 ## 1.4.0
 
 - Added 'enhanced enums' handling (new in dart 2.17 release) using the 'JsonizableEnum' interface.
