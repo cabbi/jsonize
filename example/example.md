@@ -4,6 +4,7 @@ import 'package:jsonize/jsonize.dart';
 
 enum Color with JsonizableEnum {
   /// The [jsonValue] must not change in time!
+  undefined(0), // Can be numbers
   red(10), // Can be numbers
   blue(20),
   green("myGreen"), // Can be strings as well
@@ -31,7 +32,7 @@ class MyClass implements Jsonizable<MyClass> {
 
 void main() {
   // Register enums and classes
-  Jsonize.registerEnum(Color.values);
+  Jsonize.registerEnum(Color.values, unknownEnumValue: Color.undefined);
   Jsonize.registerClass(MyClass.empty());
 
   Map<String, dynamic> myMap = {
