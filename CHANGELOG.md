@@ -1,3 +1,7 @@
+## 1.4.2
+
+- Added support for registering generic classes
+
 ## 1.4.1
 
 - Added 'unknownEnumValue' parameter to 'registerEnum' to handle unrecognized json values

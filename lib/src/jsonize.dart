@@ -156,7 +156,7 @@ class Jsonize {
       [Jsonizable? emptyObj]) {
     // Some checks on already registered types/classes
     if (encoders.containsKey(classType) &&
-        encoders[classType]!.jsonClassCode != classTypeCode) {
+        encoders[classType.toString()]!.jsonClassCode != classTypeCode) {
       throw JsonizeException(
           "registerType",
           "Class type '$classType' has already being registered with a"
@@ -171,7 +171,7 @@ class Jsonize {
               " different class! [${decoders[classTypeCode]!.classType}"
               " != $classType]");
     }
-    encoders[classType] =
+    encoders[classType.toString()] =
         ConvertInfo(classType, classTypeCode, toJsonFunc, emptyObj);
     decoders[classTypeCode] =
         ConvertInfo(classType, classTypeCode, fromJsonFunc, emptyObj);
@@ -214,7 +214,7 @@ class Jsonize {
   }
 
   /// The encode functions map
-  static final Map<Type, ConvertInfo> encoders = {};
+  static final Map<String, ConvertInfo> encoders = {};
 
   /// The decode functions map
   static final Map<String, ConvertInfo> decoders = {};
