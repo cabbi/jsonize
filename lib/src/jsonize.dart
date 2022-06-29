@@ -155,12 +155,13 @@ class Jsonize {
       ConvertFunction? toJsonFunc, ConvertFunction? fromJsonFunc,
       [Jsonizable? emptyObj]) {
     // Some checks on already registered types/classes
-    if (encoders.containsKey(classType) &&
-        encoders[classType.toString()]!.jsonClassCode != classTypeCode) {
+    var className = getClassName(classType);
+    if (encoders.containsKey(className) &&
+        encoders[className]!.jsonClassCode != classTypeCode) {
       throw JsonizeException(
           "registerType",
-          "Class type '$classType' has already being registered with a"
-              " different token! [${encoders[classType]!.jsonClassCode}"
+          "Class type '$className' has already being registered with a"
+              " different token! [${encoders[className]!.jsonClassCode}"
               " != $classTypeCode]");
     }
     if (decoders.containsKey(classTypeCode) &&
@@ -171,7 +172,7 @@ class Jsonize {
               " different class! [${decoders[classTypeCode]!.classType}"
               " != $classType]");
     }
-    encoders[classType.toString()] =
+    encoders[className] =
         ConvertInfo(classType, classTypeCode, toJsonFunc, emptyObj);
     decoders[classTypeCode] =
         ConvertInfo(classType, classTypeCode, fromJsonFunc, emptyObj);
@@ -218,6 +219,9 @@ class Jsonize {
 
   /// The decode functions map
   static final Map<String, ConvertInfo> decoders = {};
+
+  /// Get the root class in case of generics
+  static String getClassName(Type type) => type.toString().split("<")[0];
 }
 
 /// The interface to create a [Jsonizable] class you can register

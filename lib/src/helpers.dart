@@ -112,7 +112,8 @@ class JsonizeSession {
         format: dateTimeFormat ?? DateTimeFormat.string);
 
     _encoders.addAll(Jsonize.encoders);
-    _encoders["DateTime"] = ConvertInfo(DateTime, dt.jsonClassCode, dt.toJson);
+    _encoders[Jsonize.getClassName(DateTime)] =
+        ConvertInfo(DateTime, dt.jsonClassCode, dt.toJson);
     _decoders.addAll(Jsonize.decoders);
     _decoders[dt.jsonClassCode] =
         ConvertInfo(DateTime, dt.jsonClassCode, dt.fromJson);
@@ -121,7 +122,7 @@ class JsonizeSession {
   /// The [toEncodable] function used to convert to json string
   dynamic toEncodable(dynamic object) {
     // Find the class encoder
-    var convertInfo = _getEncoder(object.runtimeType);
+    var convertInfo = _encoders[Jsonize.getClassName(object.runtimeType)];
     if (convertInfo != null) {
       return {
         _makeClassToken(convertInfo.jsonClassCode):
@@ -129,27 +130,6 @@ class JsonizeSession {
       };
     }
     return object;
-  }
-
-  ConvertInfo? _getEncoder(Type type) {
-    var typeStr = type.toString();
-    // Try get generic roots
-    var types = typeStr.split("<");
-    bool isGeneric = types.length > 1;
-    while (types.length > 1) {
-      var convertInfo = _encoders[types.join("<")];
-      if (convertInfo != null) {
-        return convertInfo;
-      }
-      types.length -= 1;
-    }
-    // Base type
-    var convertInfo = _encoders[types[0]];
-    if (convertInfo != null) {
-      return convertInfo;
-    }
-    // Last chance... generic type with <dynamic>
-    return isGeneric ? _encoders["${types[0]}<dynamic>"] : null;
   }
 
   /// The [reviver] function used to convert from json string

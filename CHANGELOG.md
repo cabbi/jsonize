@@ -1,3 +1,7 @@
+## 1.4.3
+
+- Fix on generic classes register
+
 ## 1.4.2
 
 - Added support for registering generic classes
