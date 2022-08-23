@@ -28,6 +28,7 @@ void main() {
     "my_num": 1,
     "my_str": "Hello!",
     "my_dt": DateTime.now(),
+    "my_duration": Duration(seconds: 30),
     "my_class": MyClass("here I am!")
   };
   var jsonRep = Jsonize.toJson(myMap);

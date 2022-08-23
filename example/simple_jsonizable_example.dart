@@ -38,6 +38,7 @@ void main() {
     "my_str": "Hello!",
     "my_color": Color.green,
     "my_dt": DateTime.now(),
+    "my_duration": Duration(seconds: 30),
     "my_class": MyClass("here I am!")
   };
   var jsonRep = Jsonize.toJson(myMap);

@@ -1,3 +1,7 @@
+## 1.5.0
+
+- Added 'Duration' support with 'DurationFormat'
+
 ## 1.4.3
 
 - Fix on generic classes register

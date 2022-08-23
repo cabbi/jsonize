@@ -1,6 +1,6 @@
 name: jsonize
-description: A JSON serialize class to convert 'to' and 'from' JSON format Enums, DateTime and any of your own classes.
-version: 1.4.3
+description: A JSON serialize class to convert 'to' and 'from' JSON format Enums, DateTime, Duration and any of your own classes.
+version: 1.5.0
 homepage: https://github.com/cabbi/jsonize
 
 environment:

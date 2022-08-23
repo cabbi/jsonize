@@ -1,7 +1,8 @@
 import 'dart:convert';
 
 import '../jsonize.dart';
-import 'helpers.dart';
+import 'helpers/convert_info.dart';
+import 'helpers/jsonize_session.dart';
 
 /// The encode and decode function prototype
 typedef ConvertFunction = dynamic Function(dynamic);
@@ -30,13 +31,44 @@ typedef CallbackFunction = dynamic Function(
 ///   "Unix epoch" 1970-01-01T00:00:00Z
 /// - [epochWithMicros] a number representing the microseconds since the
 ///   "Unix epoch" 1970-01-01T00:00:00Z
-enum DateTimeFormat {
-  string,
-  stringWithMillis,
-  stringWithMicros,
-  epoch,
-  epochWithMillis,
-  epochWithMicros
+enum DateTimeFormat implements JsonizableEnum {
+  string("s"),
+  stringWithMillis("sm"),
+  stringWithMicros("su"),
+  epoch("e"),
+  epochWithMillis("em"),
+  epochWithMicros("eu");
+
+  @override
+  final dynamic jsonValue;
+  const DateTimeFormat(this.jsonValue);
+
+  static DateTimeFormat fromValue(jsonValue) =>
+      JsonizableEnum.fromValue(DateTimeFormat.values, jsonValue);
+}
+
+/// The [Duration] serialization format
+///
+/// - [microseconds] Duration up to microseconds (the huge number!)
+/// - [milliseconds] Duration up to milliseconds (the big number!)
+/// - [seconds] Duration up to seconds (the reasonable number!)
+/// - [minutes] Duration up to minutes used for low resolution durations
+/// - [hours] Duration up to minutes used for very low resolution durations
+/// - [days] Duration up to days used for very very low resolution durations
+enum DurationFormat implements JsonizableEnum {
+  microseconds("us"),
+  milliseconds("ms"),
+  seconds("s"),
+  minutes("m"),
+  hours("h"),
+  days("d");
+
+  @override
+  final dynamic jsonValue;
+  const DurationFormat(this.jsonValue);
+
+  static DurationFormat fromValue(jsonValue) =>
+      JsonizableEnum.fromValue(DurationFormat.values, jsonValue);
 }
 
 /// The [Enum] serialization format
@@ -184,12 +216,16 @@ class Jsonize {
       String? jsonClassToken,
       String? dtClassCode,
       DateTimeFormat dateTimeFormat = DateTimeFormat.string,
+      String? durationClassCode,
+      DurationFormat durationFormat = DurationFormat.microseconds,
       CallbackFunction? convertCallback}) {
     // Create a new session with requested parameters
     JsonizeSession session = JsonizeSession(
         jsonClassToken: jsonClassToken,
         dtClassCode: dtClassCode,
         dateTimeFormat: dateTimeFormat,
+        durationClassCode: durationClassCode,
+        durationFormat: durationFormat,
         convertCallback: convertCallback);
     // Encode with the current session settings
     JsonEncoder encoder = indent == null
@@ -203,12 +239,16 @@ class Jsonize {
       {String? jsonClassToken,
       String? dtClassCode,
       DateTimeFormat dateTimeFormat = DateTimeFormat.string,
+      String? durationClassCode,
+      DurationFormat durationFormat = DurationFormat.microseconds,
       CallbackFunction? convertCallback}) {
     // Create a new session with requested parameters
     JsonizeSession session = JsonizeSession(
         jsonClassToken: jsonClassToken,
         dtClassCode: dtClassCode,
         dateTimeFormat: dateTimeFormat,
+        durationClassCode: durationClassCode,
+        durationFormat: durationFormat,
         convertCallback: convertCallback);
     // Decode with the current session settings
     return jsonDecode(value, reviver: session.reviver);

@@ -1,4 +1,4 @@
-A JSON serialize class to convert 'to' and 'from' JSON format **Enums**, **DateTime** and any of your own classes.
+A JSON serialize class to convert 'to' and 'from' JSON format **Enums**, **DateTime**, **Duration** and any of your own classes.
 
 # Introduction
 
@@ -7,17 +7,22 @@ This package does not implement the 'toJson' and 'fromJson' methods for you. For
 
 # Usage
 
-By default **Jsonize** supports **Enums** and **DateTime** serialization in any place of your data structure.
+By default **Jsonize** supports **Enums**, **DateTime** and **Duration** serialization in any place of your data structure.
 
 ```dart
-  enum Color { red, blue, green, gray, yellow }
+import 'package:jsonize/jsonize.dart';
+
+enum Color { red, blue, green, gray, yellow }
+
+void main() {
   Jsonize.registerEnum(Color.values);
 
-  List<dynamic> myList = [1, "Hello!", Color.blue, DateTime.now()];
+  List<dynamic> myList = [1, "Hello!", Color.blue, DateTime.now(), Duration(seconds: 30)];
 
   var jsonRep = Jsonize.toJson(myList);
   var myDeserializedList = Jsonize.fromJson(jsonRep);
   print(myDeserializedList);
+}
 ```
 
 **Jsonize** also supports your own classes. You can register a type or let your class implement one of the **Jsonizable** or **Clonable** interfaces for classes and **JsonizableEnum** interface for keeping Enum serialization safe.
