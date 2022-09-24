@@ -26,6 +26,7 @@ void main() {
 ```
 
 **Jsonize** also supports your own classes. You can register a type or let your class implement one of the **Jsonizable** or **Clonable** interfaces for classes and **JsonizableEnum** interface for keeping Enum serialization safe.
+**ClonableEx** and **ClonableAsync** interfaces to handle external parameter and [async serialization](https://pub.dev/packages/jsonize/example#ClonableAsync).
 
 ```dart
 import 'package:jsonize/jsonize.dart';
