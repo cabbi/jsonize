@@ -1,15 +1,45 @@
+library clonable;
+
 import 'dart:collection';
 
 import 'package:jsonize/jsonize.dart';
 
+part 'clonable_ex.dart';
+part 'clonable_async.dart';
+
+/// The [BaseClonable] class used to clone and serialize objects.
+abstract class BaseClonable<T extends Object> implements Jsonizable<T> {
+  /// The object fields collection
+  CloneFields get fields;
+
+  /// Sets the [json] map values for this instance.
+  void setMap(Map json) {
+    for (var field in fields) {
+      var obj = json[field.name];
+      if (obj is CloneField) {
+        obj = obj.value;
+      }
+      field.value = obj ?? field.defaultValue;
+    }
+  }
+
+  /// Gets the [json] map values for this instance.
+  void getMap(Map json) {
+    for (CloneField field in fields) {
+      // Avoid storing default value
+      var value = field.value;
+      if (value != field.defaultValue) {
+        json[field.name] = value;
+      }
+    }
+  }
+}
+
 /// The [Clonable] class used to clone and serialize objects.
 ///
 /// The Clonable type cannot be a nullable type.
-abstract class Clonable<T extends Object> implements Jsonizable<T> {
+abstract class Clonable<T extends Object> extends BaseClonable<T> {
   // ========== Clonable interface ==========
-
-  /// The object fields collection
-  CloneFields get fields;
 
   /// Creates an empty object. [json] map is provided in case of 'final' fields
   /// needed within the class constructor. In that case the [CloneField]
@@ -35,28 +65,6 @@ abstract class Clonable<T extends Object> implements Jsonizable<T> {
   /// Creates an [obj] clone.
   static Clonable clone(Clonable obj) =>
       ((obj.create(obj.fields._map) as Clonable)..setMap(obj.fields._map));
-
-  /// Sets the [json] map values for this instance.
-  void setMap(Map json) {
-    for (var field in fields) {
-      var obj = json[field.name];
-      if (obj is CloneField) {
-        obj = obj.value;
-      }
-      field.value = obj ?? field.defaultValue;
-    }
-  }
-
-  /// Gets the [json] map values for this instance.
-  void getMap(Map json) {
-    for (CloneField field in fields) {
-      // Avoid storing default value
-      var value = field.value;
-      if (value != field.defaultValue) {
-        json[field.name] = value;
-      }
-    }
-  }
 
   // ========== [Jsonizable] implementation ==========
 

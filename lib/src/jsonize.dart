@@ -171,8 +171,7 @@ class Jsonize {
 
   /// Registers a new [Jsonizable] class by it instance.
   static void registerClass(Jsonizable object) {
-    _register(object.runtimeType, object.jsonClassCode, null, object.fromJson,
-        object);
+    _register(object.runtimeType, object.jsonClassCode, null, null, object);
   }
 
   /// Registers new [Jsonizable] classes by it instances.
@@ -218,7 +217,8 @@ class Jsonize {
       DateTimeFormat dateTimeFormat = DateTimeFormat.string,
       String? durationClassCode,
       DurationFormat durationFormat = DurationFormat.microseconds,
-      CallbackFunction? convertCallback}) {
+      CallbackFunction? convertCallback,
+      dynamic exParam}) {
     // Create a new session with requested parameters
     JsonizeSession session = JsonizeSession(
         jsonClassToken: jsonClassToken,
@@ -226,7 +226,8 @@ class Jsonize {
         dateTimeFormat: dateTimeFormat,
         durationClassCode: durationClassCode,
         durationFormat: durationFormat,
-        convertCallback: convertCallback);
+        convertCallback: convertCallback,
+        exParam: exParam);
     // Encode with the current session settings
     JsonEncoder encoder = indent == null
         ? JsonEncoder(session.toEncodable)
@@ -241,7 +242,8 @@ class Jsonize {
       DateTimeFormat dateTimeFormat = DateTimeFormat.string,
       String? durationClassCode,
       DurationFormat durationFormat = DurationFormat.microseconds,
-      CallbackFunction? convertCallback}) {
+      CallbackFunction? convertCallback,
+      dynamic exParam}) {
     // Create a new session with requested parameters
     JsonizeSession session = JsonizeSession(
         jsonClassToken: jsonClassToken,
@@ -249,7 +251,8 @@ class Jsonize {
         dateTimeFormat: dateTimeFormat,
         durationClassCode: durationClassCode,
         durationFormat: durationFormat,
-        convertCallback: convertCallback);
+        convertCallback: convertCallback,
+        exParam: exParam);
     // Decode with the current session settings
     return jsonDecode(value, reviver: session.reviver);
   }

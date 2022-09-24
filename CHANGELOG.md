@@ -1,3 +1,7 @@
+## 1.6.0
+
+- Added 'ClonableEx' and 'ClonableAsync' interfaces to handle external parameter and async serialization
+
 ## 1.5.0
 
 - Added 'Duration' support with 'DurationFormat'

@@ -10,6 +10,7 @@ class JsonizeSession {
   final Map<String, ConvertInfo> _encoders = {};
   final Map<String, ConvertInfo> _decoders = {};
   final CallbackFunction? convertCallback;
+  final dynamic exParam;
 
   JsonizeSession(
       {String? jsonClassToken,
@@ -17,7 +18,8 @@ class JsonizeSession {
       DateTimeFormat? dateTimeFormat,
       String? durationClassCode,
       DurationFormat? durationFormat,
-      this.convertCallback})
+      this.convertCallback,
+      this.exParam})
       : jsonClassToken = jsonClassToken ?? Jsonize.jsonClassToken {
     var dt = DateTimeJsonable(
         jsonClassCode: dtClassCode ?? "dt",
@@ -45,7 +47,7 @@ class JsonizeSession {
     if (convertInfo != null) {
       return {
         _makeClassToken(convertInfo.jsonClassCode):
-            _convert(convertInfo, object)
+            convertInfo.toJson(object, convertCallback, exParam)
       };
     }
     return object;
@@ -59,11 +61,7 @@ class JsonizeSession {
       if (classType != null) {
         var convertInfo = _decoders[classType];
         if (convertInfo != null) {
-          if (convertCallback != null) {
-            value = convertCallback!(
-                convertInfo.classType, value, convertInfo.emptyObj);
-          }
-          return convertInfo.convert(value);
+          return convertInfo.fromJson(value, convertCallback, exParam);
         }
       }
     }
@@ -74,16 +72,6 @@ class JsonizeSession {
       return value.values.first;
     }
     return value;
-  }
-
-  /// A convert helper function
-  dynamic _convert(ConvertInfo info, dynamic object) {
-    dynamic jsonObj =
-        object is Jsonizable ? object.toJson() : info.convert(object);
-    return convertCallback == null
-        ? jsonObj
-        : convertCallback!(
-            info.classType, jsonObj, object is Jsonizable ? object : null);
   }
 
   /// Makes a class token string
