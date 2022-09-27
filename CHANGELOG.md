@@ -1,6 +1,6 @@
 ## 1.6.1
 
-- Added 'ClonableEx' and 'ClonableAsync' interfaces to handle external parameter and async serialization
+- Added 'awaitNestedFutures' parameter in 'fromJson' method.
 - README file update
 
 ## 1.6.0
