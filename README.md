@@ -26,7 +26,7 @@ void main() {
 ```
 
 **Jsonize** also supports your own classes. You can register a type or let your class implement one of the **Jsonizable** or **Clonable** interfaces for classes and **JsonizableEnum** interface for keeping Enum serialization safe.
-**ClonableEx** and **ClonableAsync** interfaces to handle external parameter and [async serialization](https://pub.dev/packages/jsonize/example#ClonableAsync).
+**ClonableEx** and **ClonableAsync** interfaces can handle external parameter and [async serialization](https://pub.dev/packages/jsonize/example#ClonableAsync).
 
 ```dart
 import 'package:jsonize/jsonize.dart';
@@ -134,10 +134,13 @@ For more complex cases like subclasses, please refer to the examples section.
 ```dart
 static String toJson(dynamic value,
       {String? indent,
-       String? jsonClassToken,
-       String? dtClassCode,
-       DateTimeFormat dateTimeFormat = DateTimeFormat.string,
-       CallbackFunction? convertCallback})
+      String? jsonClassToken,
+      String? dtClassCode,
+      DateTimeFormat dateTimeFormat = DateTimeFormat.string,
+      String? durationClassCode,
+      DurationFormat durationFormat = DurationFormat.microseconds,
+      CallbackFunction? convertCallback,
+      dynamic exParam})
 ```
 
 Transforms an object/structure of objects into a JSON string applying the class tokens in order to revert back your original objects.
@@ -148,15 +151,22 @@ Transforms an object/structure of objects into a JSON string applying the class 
 - **_jsonClassToken_**: The token used by **Jsonize** to identify a serialized object.
 - **_dtClassCode_**: The code used to serialize **DateTime** objects.
 - **_dateTimeFormat_**: The **DateTime** serialization format (see **DateTimeFormat** enum).
+- **_durationClassCode_**: The code used to serialize **Duration** objects.
+- **_durationFormat_**: The **Duration** serialization format (see **DurationFormat** enum).
 - **_convertCallback_**: An optional function called before returning the object's encoded JSON representation.
+- **_exParam_**: An optional external parameter passed to the **ClonableEx** and **ClonableAsync** (see [async serialization](https://pub.dev/packages/jsonize/example#ClonableAsync) as an example)
 
 ## fromJson
 ```dart
-  static dynamic fromJson(dynamic value,
+  static dynamic fromJson({dynamic value,
       {String? jsonClassToken,
-       String? dtClassCode,
-       DateTimeFormat dateTimeFormat = DateTimeFormat.string,
-       CallbackFunction? convertCallback})
+      String? dtClassCode,
+      DateTimeFormat dateTimeFormat = DateTimeFormat.string,
+      String? durationClassCode,
+      DurationFormat durationFormat = DurationFormat.microseconds,
+      CallbackFunction? convertCallback,
+      dynamic exParam,
+      bool awaitNestedFutures = false}})
 ```
 
 Transforms a JSON string back to an object/structure of objects.
@@ -166,8 +176,11 @@ Transforms a JSON string back to an object/structure of objects.
 - **_jsonClassToken_**: The token used by **Jsonize** to identify a serialized object.
 - **_dtClassCode_**: The code used to serialize **DateTime** objects.
 - **_dateTimeFormat_**: The **DateTime** serialization format (see **DateTimeFormat** enum).
+- **_durationClassCode_**: The code used to serialize **Duration** objects.
+- **_durationFormat_**: The **Duration** serialization format (see **DurationFormat** enum).
 - **_convertCallback_**: An optional function called before decoding the JSON representation into the object.
-
+- **_exParam_**: An optional external parameter passed to the **ClonableEx** and **ClonableAsync** 
+- **_awaitNestedFutures_**: If true it will wait all the json nasted values to complete the future (see [async serialization](https://pub.dev/packages/jsonize/example#ClonableAsync) as an example) 
 ## registerEnum
 ```dart
   static void registerEnum<T>(List<T> values,
@@ -231,21 +244,19 @@ Registers a new type to the **Jsonize** conversion handling (i.e. used for class
 - **_epochWithMillis_**: a number representing the milliseconds since the "Unix epoch" 1970-01-01T00:00:00.
 - **_epochWithMicros_**: a number representing the microseconds since the "Unix epoch" 1970-01-01T00:00:00.
 
+## DurationFormat
+- **_microseconds_**: Duration up to microseconds (the huge number!)
+- **_milliseconds_**: Duration up to milliseconds (the big number!)
+- **_seconds_**: Duration up to seconds (the reasonable number!)
+- **_minutes_**: Duration up to minutes used for low resolution durations
+- **_hours_**: Duration up to minutes used for very low resolution durations
+- **_days_**: Duration up to days used for very very low resolution durations
+
 ## EnumFormat
+(consider using **JsonizableEnum** interface instead. See [this example](https://pub.dev/packages/jsonize/example#JsonableAndEnums)) 
 - **_string_**: the text of the enum item.
 - **_indexOf_**: the index of the enum item.
-
-Both formats have pro & cons.
-
-### string
-- it is space consuming since it's the text of the item
-- you can not change the item text
-- you can add new items without warring about its position
-
-### indexOf
-- it saves space since it is only a number
-- you can change the item text
-- you can not add new items without warring about its position
+<br>
 
 # Additional information
 

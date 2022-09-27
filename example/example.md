@@ -1,4 +1,4 @@
-## Implementing the Jsonizable interfaces for classes and enums 
+## <a name="JsonableAndEnums"></a>Implementing the Jsonizable interfaces for classes and enums 
 ```dart
 import 'package:jsonize/jsonize.dart';
 
@@ -189,7 +189,7 @@ void main() {
 }
 ```
 
-<a name="ClonableAsync"></a>## A example using the 'ClonableAsync' interface in case of async calls within the object creation
+## <a name="ClonableAsync"></a>A example using the 'ClonableAsync' interface in case of async calls within the object creation
 ```dart
 import 'dart:convert';
 
@@ -243,12 +243,14 @@ void main() async {
   // Register classes
   Jsonize.registerClass(TextItem.empty());
 
-  var myItem =
-      TextItem("A simple example where Jsonize should wait an async response!");
+  var myItem = {
+    "myItem": TextItem(
+        "A simple example where Jsonize should wait an async response!")
+  };
 
   var jsonRep = Jsonize.toJson(myItem);
   var backToLife = await Jsonize.fromJson(jsonRep,
-      exParam: "here is an extra runtime parameter!");
+      exParam: "here is an extra runtime parameter!", awaitNestedFutures: true);
   print(backToLife);
 }
 ```

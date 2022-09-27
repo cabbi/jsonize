@@ -243,7 +243,8 @@ class Jsonize {
       String? durationClassCode,
       DurationFormat durationFormat = DurationFormat.microseconds,
       CallbackFunction? convertCallback,
-      dynamic exParam}) {
+      dynamic exParam,
+      bool awaitNestedFutures = false}) {
     // Create a new session with requested parameters
     JsonizeSession session = JsonizeSession(
         jsonClassToken: jsonClassToken,
@@ -254,7 +255,30 @@ class Jsonize {
         convertCallback: convertCallback,
         exParam: exParam);
     // Decode with the current session settings
-    return jsonDecode(value, reviver: session.reviver);
+    dynamic result = jsonDecode(value, reviver: session.reviver);
+    return awaitNestedFutures ? _await(result) : result;
+  }
+
+  static dynamic _awaitList(List value) async {
+    for (int i = 0; i < value.length; i++) {
+      value[i] = await _await(value[i]);
+    }
+    return value;
+  }
+
+  static dynamic _awaitMap(Map value) async {
+    await Future.forEach(value.entries, (MapEntry entry) async {
+      value[entry.key] = await _await(entry.value);
+    });
+    return value;
+  }
+
+  static dynamic _await(dynamic value) async {
+    return value is List
+        ? await _awaitList(value)
+        : value is Map
+            ? await _awaitMap(value)
+            : await value;
   }
 
   /// The encode functions map

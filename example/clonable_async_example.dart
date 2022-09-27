@@ -50,11 +50,13 @@ void main() async {
   // Register classes
   Jsonize.registerClass(TextItem.empty());
 
-  var myItem =
-      TextItem("A simple example where Jsonize should wait an async response!");
+  var myItem = {
+    "myItem": TextItem(
+        "A simple example where Jsonize should wait an async response!")
+  };
 
   var jsonRep = Jsonize.toJson(myItem);
   var backToLife = await Jsonize.fromJson(jsonRep,
-      exParam: "here is an extra runtime parameter!");
+      exParam: "here is an extra runtime parameter!", awaitNestedFutures: true);
   print(backToLife);
 }

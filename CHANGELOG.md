@@ -1,3 +1,8 @@
+## 1.6.1
+
+- Added 'ClonableEx' and 'ClonableAsync' interfaces to handle external parameter and async serialization
+- README file update
+
 ## 1.6.0
 
 - Added 'ClonableEx' and 'ClonableAsync' interfaces to handle external parameter and async serialization
