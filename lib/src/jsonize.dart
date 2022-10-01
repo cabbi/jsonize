@@ -256,28 +256,29 @@ class Jsonize {
         exParam: exParam);
     // Decode with the current session settings
     dynamic result = jsonDecode(value, reviver: session.reviver);
-    return awaitNestedFutures ? _await(result) : result;
+    return awaitNestedFutures ? wait(result) : result;
   }
 
-  static dynamic _awaitList(List value) async {
+  static dynamic _waitList(List value) async {
     for (int i = 0; i < value.length; i++) {
-      value[i] = await _await(value[i]);
+      value[i] = await wait(value[i]);
     }
     return value;
   }
 
-  static dynamic _awaitMap(Map value) async {
+  static dynamic _waitMap(Map value) async {
     await Future.forEach(value.entries, (MapEntry entry) async {
-      value[entry.key] = await _await(entry.value);
+      value[entry.key] = await wait(entry.value);
     });
     return value;
   }
 
-  static dynamic _await(dynamic value) async {
+  /// Recursively wait for futures within complex structure
+  static dynamic wait(dynamic value) async {
     return value is List
-        ? await _awaitList(value)
+        ? await _waitList(value)
         : value is Map
-            ? await _awaitMap(value)
+            ? await _waitMap(value)
             : await value;
   }
 

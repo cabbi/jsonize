@@ -1,3 +1,7 @@
+## 1.6.2
+
+- Improved 'ClonableAsync' interface now awaiting class members assignment.
+
 ## 1.6.1
 
 - Added 'awaitNestedFutures' parameter in 'fromJson' method.

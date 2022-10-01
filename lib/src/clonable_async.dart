@@ -25,9 +25,20 @@ abstract class ClonableAsync<T extends Object> extends ClonableEx<T> {
   Future<T?> fromJsonAsync(json, [dynamic exParam]) async {
     ClonableAsync obj = await createAsync(json, exParam) as ClonableAsync;
     obj.beforeDecodeEx(json, exParam);
-    obj.setMap(json);
+    await obj.setMap(json);
     obj.afterDecodeEx(json, exParam);
     return obj as T;
+  }
+
+  @override
+  Future<void> setMap(Map json) async {
+    for (var field in fields) {
+      var obj = json[field.name];
+      if (obj is CloneField) {
+        obj = obj.value;
+      }
+      field.value = await obj ?? field.defaultValue;
+    }
   }
 
   /// Jsonize will NOT call this method for an [ClonableAsync] object type!
