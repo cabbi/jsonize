@@ -7,12 +7,29 @@ import 'package:jsonize/jsonize.dart';
 part 'clonable_ex.dart';
 part 'clonable_async.dart';
 
-/// The [BaseClonable] class used to clone and serialize objects.
-abstract class BaseClonable<T extends Object> implements Jsonizable<T> {
-  /// The object fields collection
+/// The [ClonableBaseInterface] definition
+abstract class ClonableBaseInterface<T> implements Jsonizable<T> {
   CloneFields get fields;
+  void setMap(Map json);
+  void getMap(Map json);
+}
 
+/// The [ClonableInterface] definition
+abstract class ClonableInterface<T> implements ClonableBaseInterface<T> {
+  void beforeEncode(Map<String, dynamic> json);
+  void afterEncode(Map<String, dynamic> json);
+  void beforeDecode(Map<String, dynamic> json);
+  void afterDecode(Map<String, dynamic> json);
+}
+
+/// The [Clonable] class used to clone and serialize objects.
+abstract class Clonable<T extends Object>
+    with ClonableBaseMixin<T>, ClonableMixin<T> {}
+
+/// The [ClonableBaseMixin] mixin class used to clone and serialize objects.
+mixin ClonableBaseMixin<T extends Object> implements ClonableBaseInterface<T> {
   /// Sets the [json] map values for this instance.
+  @override
   void setMap(Map json) {
     for (var field in fields) {
       var obj = json[field.name];
@@ -24,6 +41,7 @@ abstract class BaseClonable<T extends Object> implements Jsonizable<T> {
   }
 
   /// Gets the [json] map values for this instance.
+  @override
   void getMap(Map json) {
     for (CloneField field in fields) {
       // Avoid storing default value
@@ -35,12 +53,8 @@ abstract class BaseClonable<T extends Object> implements Jsonizable<T> {
   }
 }
 
-/// The [Clonable] class used to clone and serialize objects.
-///
-/// The Clonable type cannot be a nullable type.
-abstract class Clonable<T extends Object> extends BaseClonable<T> {
-  // ========== Clonable interface ==========
-
+/// The [ClonableMixin] mixin class used to clone and serialize objects.
+mixin ClonableMixin<T extends Object> implements ClonableInterface<T> {
   /// Creates an empty object. [json] map is provided in case of 'final' fields
   /// needed within the class constructor. In that case the [CloneField]
   /// definition might have an empty setter
@@ -49,15 +63,19 @@ abstract class Clonable<T extends Object> extends BaseClonable<T> {
   // ========== Clonable events ==========
 
   /// Raised before the [json] map is filled with the object [fields]
+  @override
   void beforeEncode(Map<String, dynamic> json) {}
 
   /// Raised after the [json] map is filled with the object [fields]
+  @override
   void afterEncode(Map<String, dynamic> json) {}
 
   /// Raised before this object fields are set with the [json] map
+  @override
   void beforeDecode(Map<String, dynamic> json) {}
 
   /// Raised after this object fields are set with the [json] map
+  @override
   void afterDecode(Map<String, dynamic> json) {}
 
   // ========== Clonable implementation ==========
@@ -79,7 +97,7 @@ abstract class Clonable<T extends Object> extends BaseClonable<T> {
 
   @override
   T? fromJson(json) {
-    Clonable obj = create(json) as Clonable;
+    ClonableInterface obj = create(json) as ClonableInterface;
     obj.beforeDecode(json);
     obj.setMap(json);
     obj.afterDecode(json);

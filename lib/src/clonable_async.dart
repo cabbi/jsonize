@@ -4,7 +4,10 @@ part of clonable;
 /// using an optional external parameter.
 ///
 /// The Clonable type cannot be a nullable type.
-abstract class ClonableAsync<T extends Object> extends ClonableEx<T> {
+abstract class ClonableAsync<T extends Object>
+    with ClonableBaseMixin<T>, ClonableExMixin<T>, ClonableAsyncMixin<T> {}
+
+mixin ClonableAsyncMixin<T extends Object> implements ClonableEx<T> {
   // ========== ClonableEx interface ==========
 
   /// Creates an empty object. [json] map is provided in case of 'final' fields

@@ -1,10 +1,29 @@
 part of clonable;
 
+/// The [ClonableExInterface] definition
+abstract class ClonableExInterface<T extends Object>
+    implements ClonableBaseInterface<T> {
+  void beforeEncodeEx(Map<String, dynamic> json, [dynamic exParam]);
+  void afterEncodeEx(Map<String, dynamic> json, [dynamic exParam]);
+  void beforeDecodeEx(Map<String, dynamic> json, [dynamic exParam]);
+  void afterDecodeEx(Map<String, dynamic> json, [dynamic exParam]);
+  dynamic toJsonEx([dynamic exParam]);
+  T? fromJsonEx(json, [dynamic exParam]);
+}
+
 /// The [ClonableEx] class used to clone and serialize future objects and using
 /// an optional external parameter.
-///
-/// The Clonable type cannot be a nullable type.
-abstract class ClonableEx<T extends Object> extends BaseClonable {
+abstract class ClonableEx<T extends Object>
+    with ClonableBaseMixin<T>, ClonableExMixin<T> {}
+
+/// The [ClonableExMixin] class used to clone and serialize future objects and using
+/// an optional external parameter.
+mixin ClonableExMixin<T extends Object> implements ClonableExInterface<T> {
+  /// Creates an [obj] clone.
+  static ClonableEx cloneEx(ClonableEx obj, [dynamic exParam]) =>
+      ((obj.createEx(obj.fields._map, exParam) as ClonableEx)
+        ..setMap(obj.fields._map));
+
   // ========== ClonableEx interface ==========
 
   /// Creates an empty object. [json] map is provided in case of 'final' fields
@@ -15,26 +34,24 @@ abstract class ClonableEx<T extends Object> extends BaseClonable {
   // ========== ClonableEx events ==========
 
   /// Raised before the [json] map is filled with the object [fields]
+  @override
   void beforeEncodeEx(Map<String, dynamic> json, [dynamic exParam]) {}
 
   /// Raised after the [json] map is filled with the object [fields]
+  @override
   void afterEncodeEx(Map<String, dynamic> json, [dynamic exParam]) {}
 
   /// Raised before this object fields are set with the [json] map
+  @override
   void beforeDecodeEx(Map<String, dynamic> json, [dynamic exParam]) {}
 
   /// Raised after this object fields are set with the [json] map
+  @override
   void afterDecodeEx(Map<String, dynamic> json, [dynamic exParam]) {}
 
-  // ========== ClonableEx implementation ==========
+  // ========== ClonableExInterface implementation ==========
 
-  /// Creates an [obj] clone.
-  static Clonable cloneEx(ClonableEx obj, [dynamic exParam]) =>
-      ((obj.createEx(obj.fields._map, exParam) as Clonable)
-        ..setMap(obj.fields._map));
-
-  // ========== [Jsonizable] implementation ==========
-
+  @override
   dynamic toJsonEx([dynamic exParam]) {
     Map<String, dynamic> json = {};
     beforeEncodeEx(json, exParam);
@@ -43,17 +60,20 @@ abstract class ClonableEx<T extends Object> extends BaseClonable {
     return json;
   }
 
+  @override
   T? fromJsonEx(json, [dynamic exParam]) {
-    ClonableEx obj = createEx(json, exParam) as ClonableEx;
+    ClonableExInterface obj = createEx(json, exParam) as ClonableExInterface;
     obj.beforeDecodeEx(json, exParam);
     obj.setMap(json);
     obj.afterDecodeEx(json, exParam);
     return obj as T;
   }
 
-  /// Jsonize will NOT call those methods for an [ClonableEx] object type!
+  // ========== Jsonizable implementation ==========
+
   @override
-  Object? fromJson(value) => throw UnimplementedError();
+  dynamic toJson() => toJsonEx();
+
   @override
-  dynamic toJson() => throw UnimplementedError();
+  T? fromJson(json, [dynamic exParam]) => fromJsonEx(json);
 }

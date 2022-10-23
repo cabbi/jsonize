@@ -1,3 +1,7 @@
+## 1.7.0
+
+- Introduced mixin classes for 'Clonable', 'ClonableEx' and 'ClonableAsync' interfaces in order to use clonable interfaces without overriding classes (i.e. use 'with' instead of 'extends').
+
 ## 1.6.2
 
 - Improved 'ClonableAsync' interface now awaiting class members assignment.
