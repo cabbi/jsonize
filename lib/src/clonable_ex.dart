@@ -9,6 +9,7 @@ abstract class ClonableExInterface<T extends Object>
   void afterDecodeEx(Map<String, dynamic> json, [dynamic exParam]);
   dynamic toJsonEx([dynamic exParam]);
   T? fromJsonEx(json, [dynamic exParam]);
+  T createEx(Map<String, dynamic> json, [dynamic exParam]);
 }
 
 /// The [ClonableEx] class used to clone and serialize future objects and using
@@ -20,8 +21,8 @@ abstract class ClonableEx<T extends Object>
 /// an optional external parameter.
 mixin ClonableExMixin<T extends Object> implements ClonableExInterface<T> {
   /// Creates an [obj] clone.
-  static ClonableEx cloneEx(ClonableEx obj, [dynamic exParam]) =>
-      ((obj.createEx(obj.fields._map, exParam) as ClonableEx)
+  static ClonableExInterface cloneEx(ClonableEx obj, [dynamic exParam]) =>
+      ((obj.createEx(obj.fields._map, exParam) as ClonableExInterface)
         ..setMap(obj.fields._map));
 
   // ========== ClonableEx interface ==========
@@ -29,6 +30,7 @@ mixin ClonableExMixin<T extends Object> implements ClonableExInterface<T> {
   /// Creates an empty object. [json] map is provided in case of 'final' fields
   /// needed within the class constructor. In that case the [CloneField]
   /// definition might have an empty setter
+  @override
   T createEx(Map<String, dynamic> json, [dynamic exParam]);
 
   // ========== ClonableEx events ==========

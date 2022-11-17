@@ -179,6 +179,8 @@ class CloneFields<T extends CloneField> extends IterableBase<T> {
     }
   }
 
+  bool containsKey(String key) => _map.containsKey(key);
+
   void clear() => _map.clear();
 
   CloneField? remove(Object? key) => _map.remove(key);

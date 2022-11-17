@@ -11,7 +11,7 @@ class ConvertInfo {
 
   dynamic toJson(
       dynamic object, CallbackFunction? convertCallback, dynamic exParam) {
-    dynamic jsonObj = object is ClonableEx
+    dynamic jsonObj = object is ClonableExInterface
         ? object.toJsonEx(exParam)
         : object is Jsonizable
             ? object.toJson()
@@ -27,10 +27,10 @@ class ConvertInfo {
     if (convertCallback != null) {
       value = convertCallback(classType, value, emptyObj);
     }
-    return emptyObj is ClonableAsync
-        ? (emptyObj as ClonableAsync).fromJsonAsync(value, exParam)
-        : emptyObj is ClonableEx
-            ? (emptyObj as ClonableEx).fromJsonEx(value, exParam)
+    return emptyObj is ClonableAsyncInterface
+        ? (emptyObj as ClonableAsyncInterface).fromJsonAsync(value, exParam)
+        : emptyObj is ClonableExInterface
+            ? (emptyObj as ClonableExInterface).fromJsonEx(value, exParam)
             : emptyObj is Jsonizable
                 ? (emptyObj as Jsonizable).fromJson(value)
                 : convert(value);

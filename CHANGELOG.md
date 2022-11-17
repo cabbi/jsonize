@@ -1,3 +1,6 @@
+## 1.7.1
+- Fixed issue with ClonableAsyncMixin not recognized as ClonableAsync when deserializing
+  
 ## 1.7.0
 
 - Introduced mixin classes for 'Clonable', 'ClonableEx' and 'ClonableAsync' interfaces in order to use clonable interfaces without overriding classes (i.e. use 'with' instead of 'extends').
