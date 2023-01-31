@@ -25,11 +25,40 @@ class ColorItem extends Clonable<ColorItem> {
       ]);
 }
 
+class ComplexObj extends Clonable<ComplexObj> {
+  Map<String, ColorItem> colors;
+  String name;
+
+  ComplexObj({this.name = "", List<ColorItem>? colors})
+      : colors = {for (var c in colors ?? []) c.name: c};
+  factory ComplexObj.empty() => ComplexObj();
+
+  @override
+  String get jsonClassCode => "CmpxObj";
+
+  @override
+  ComplexObj create(Map<String, dynamic> json) => ComplexObj();
+
+  @override
+  CloneFields<CloneField> get fields => CloneFields([
+        CloneField(
+          "name",
+          getter: () => name,
+          setter: (value) => name = value,
+        ),
+        CloneField("colors",
+            getter: () => colors,
+            setter: (value) =>
+                colors.addAll(Map<String, ColorItem>.from(value))),
+      ]);
+}
+
 void main() {
   // Register classes
   Jsonize.registerClass(ColorItem.empty());
+  Jsonize.registerClass(ComplexObj.empty());
 
-  List myList = [
+  List<ColorItem> myList = [
     ColorItem("Red", r: 255),
     ColorItem("Blue", b: 255),
     ColorItem("Gray", r: 128, g: 128, b: 128)
@@ -40,4 +69,9 @@ void main() {
   var jsonRep = Jsonize.toJson(myList);
   var backToLife = Jsonize.fromJson(jsonRep);
   print(backToLife);
+
+  var complex1 = ComplexObj(name: "First", colors: myList);
+  var complex2 = complex1.clone(deep: true);
+  complex1.colors["Red"]!.g = 128;
+  print(complex2.colors);
 }

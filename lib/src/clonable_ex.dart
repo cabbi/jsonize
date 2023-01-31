@@ -1,8 +1,7 @@
 part of clonable;
 
 /// The [ClonableExInterface] definition
-abstract class ClonableExInterface<T extends Object>
-    implements ClonableBaseInterface<T> {
+abstract class ClonableExInterface<T> implements ClonableBaseInterface<T> {
   void beforeEncodeEx(Map<String, dynamic> json, [dynamic exParam]);
   void afterEncodeEx(Map<String, dynamic> json, [dynamic exParam]);
   void beforeDecodeEx(Map<String, dynamic> json, [dynamic exParam]);
@@ -14,16 +13,18 @@ abstract class ClonableExInterface<T extends Object>
 
 /// The [ClonableEx] class used to clone and serialize future objects and using
 /// an optional external parameter.
-abstract class ClonableEx<T extends Object>
-    with ClonableBaseMixin<T>, ClonableExMixin<T> {}
+abstract class ClonableEx<T> with ClonableBaseMixin<T>, ClonableExMixin<T> {}
 
 /// The [ClonableExMixin] class used to clone and serialize future objects and using
 /// an optional external parameter.
-mixin ClonableExMixin<T extends Object> implements ClonableExInterface<T> {
+mixin ClonableExMixin<T> implements ClonableExInterface<T> {
   /// Creates an [obj] clone.
-  static ClonableExInterface cloneEx(ClonableEx obj, [dynamic exParam]) =>
-      ((obj.createEx(obj.fields._map, exParam) as ClonableExInterface)
-        ..setMap(obj.fields._map));
+  ///
+  /// If [deep] is true it will perform a deep/recursive set
+  /// (i.e. clones filed values in case they are clonable objects)
+  T cloneEx(ClonableEx obj, {dynamic exParam, bool deep = false}) =>
+      ((createEx(fields.valueMap, exParam) as ClonableMixin)
+        ..setMap(fields._map, deep: deep)) as T;
 
   // ========== ClonableEx interface ==========
 

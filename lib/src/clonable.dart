@@ -10,8 +10,24 @@ part 'clonable_async.dart';
 /// The [ClonableBaseInterface] definition
 abstract class ClonableBaseInterface<T> implements Jsonizable<T> {
   CloneFields get fields;
-  void setMap(Map json);
+
+  /// Sets the [json] map values for this instance.
+  void setMap(Map json, {bool deep = false});
+
+  /// Gets the [json] map values for this instance.
   void getMap(Map json);
+
+  /// Creates an [obj] clone.
+  ///
+  /// If [deep] is true it will perform a deep/recursive clone
+  /// (i.e. clones filed values in case they are clonable objects)
+  T clone({bool deep = false});
+
+  /// Sets this object as a copy of [obj]
+  ///
+  /// If [deep] is true it will perform a deep/recursive set
+  /// (i.e. clones filed values in case they are clonable objects)
+  void set(ClonableBaseInterface<T> obj, {bool deep = false});
 }
 
 /// The [ClonableInterface] definition
@@ -23,24 +39,59 @@ abstract class ClonableInterface<T> implements ClonableBaseInterface<T> {
 }
 
 /// The [Clonable] class used to clone and serialize objects.
-abstract class Clonable<T extends Object>
-    with ClonableBaseMixin<T>, ClonableMixin<T> {}
+abstract class Clonable<T> with ClonableBaseMixin<T>, ClonableMixin<T> {}
+
+dynamic _getFieldObj(
+    {required Map json, required CloneField field, required bool deep}) {
+  var obj = json[field.name];
+  if (obj is CloneField) {
+    obj = obj.value;
+  }
+  if (deep) {
+    // NOTE: the resulting inside lists or maps will be of type dynamic and
+    // not of specific type!
+    dynamic recur(dynamic obj) {
+      if (obj is List) {
+        var list = [];
+        for (int i = 0; i < obj.length; i++) {
+          list.add(recur(obj[i]));
+        }
+        return list;
+      }
+      if (obj is Map) {
+        var map = <String, dynamic>{};
+        for (var entry in obj.entries) {
+          map[entry.key] = recur(entry.value);
+        }
+        return map;
+      }
+      if (obj is ClonableAsyncMixin) {
+        return obj.cloneAsync(deep: true);
+      }
+      if (obj is ClonableMixin) {
+        return obj.clone(deep: true);
+      }
+      if (obj is CloneField) {
+        return obj.value;
+      }
+      return obj;
+    }
+
+    obj = recur(obj);
+  }
+  return obj;
+}
 
 /// The [ClonableBaseMixin] mixin class used to clone and serialize objects.
-mixin ClonableBaseMixin<T extends Object> implements ClonableBaseInterface<T> {
-  /// Sets the [json] map values for this instance.
+mixin ClonableBaseMixin<T> implements ClonableBaseInterface<T> {
   @override
-  void setMap(Map json) {
+  void setMap(Map json, {bool deep = false}) {
     for (var field in fields) {
-      var obj = json[field.name];
-      if (obj is CloneField) {
-        obj = obj.value;
-      }
-      field.value = obj ?? field.defaultValue;
+      field.value = _getFieldObj(json: json, field: field, deep: deep) ??
+          field.defaultValue;
     }
   }
 
-  /// Gets the [json] map values for this instance.
   @override
   void getMap(Map json) {
     for (CloneField field in fields) {
@@ -51,16 +102,25 @@ mixin ClonableBaseMixin<T extends Object> implements ClonableBaseInterface<T> {
       }
     }
   }
+
+  @override
+  void set(ClonableBaseInterface<T> obj, {bool deep = false}) =>
+      setMap(obj.fields._map, deep: deep);
 }
 
 /// The [ClonableMixin] mixin class used to clone and serialize objects.
-mixin ClonableMixin<T extends Object> implements ClonableInterface<T> {
+mixin ClonableMixin<T> implements ClonableInterface<T>, Jsonizable<T> {
   /// Creates an empty object. [json] map is provided in case of 'final' fields
   /// needed within the class constructor. In that case the [CloneField]
   /// definition might have an empty setter
   T create(Map<String, dynamic> json);
 
-  // ========== Clonable events ==========
+  // ========== ClonableBaseInterface implementation ==========
+  @override
+  T clone({bool deep = false}) => ((create(fields.valueMap) as ClonableMixin)
+    ..setMap(fields._map, deep: deep)) as T;
+
+  // ========== ClonableInterface implementation ==========
 
   /// Raised before the [json] map is filled with the object [fields]
   @override
@@ -77,12 +137,6 @@ mixin ClonableMixin<T extends Object> implements ClonableInterface<T> {
   /// Raised after this object fields are set with the [json] map
   @override
   void afterDecode(Map<String, dynamic> json) {}
-
-  // ========== Clonable implementation ==========
-
-  /// Creates an [obj] clone.
-  static Clonable clone(Clonable obj) =>
-      ((obj.create(obj.fields._map) as Clonable)..setMap(obj.fields._map));
 
   // ========== [Jsonizable] implementation ==========
 
@@ -190,4 +244,7 @@ class CloneFields<T extends CloneField> extends IterableBase<T> {
   Iterable<CloneField> get fields => _map.values;
 
   Iterable<MapEntry<String, CloneField<dynamic>>> get entries => _map.entries;
+
+  Map<String, dynamic> get valueMap =>
+      _map.map((k, v) => MapEntry(k, v.getter()));
 }

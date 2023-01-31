@@ -1,22 +1,22 @@
 part of clonable;
 
 /// The [ClonableAsyncInterface] definition
-abstract class ClonableAsyncInterface<T extends Object>
-    implements ClonableExInterface<T> {
+abstract class ClonableAsyncInterface<T> implements ClonableExInterface<T> {
   @override
-  Future<void> setMap(Map json);
+  Future<void> setMap(Map json, {bool deep = false});
   Future<T?> fromJsonAsync(json, [dynamic exParam]);
   Future<T> createAsync(Map<String, dynamic> json, [dynamic exParam]);
+  Future<T> cloneAsync({dynamic exParam, bool deep = false});
 }
 
 /// The [ClonableAsync] class used to clone and serialize future objects and
 /// using an optional external parameter.
 ///
 /// The Clonable type cannot be a nullable type.
-abstract class ClonableAsync<T extends Object>
+abstract class ClonableAsync<T>
     with ClonableBaseMixin<T>, ClonableExMixin<T>, ClonableAsyncMixin<T> {}
 
-mixin ClonableAsyncMixin<T extends Object>
+mixin ClonableAsyncMixin<T>
     implements ClonableEx<T>, ClonableAsyncInterface<T> {
   // ========== ClonableEx interface ==========
 
@@ -29,11 +29,15 @@ mixin ClonableAsyncMixin<T extends Object>
   // ========== ClonableAsync implementation ==========
 
   /// Creates an [obj] clone.
-  static Future<ClonableAsyncInterface> cloneAsync(ClonableAsync obj,
-          [dynamic exParam]) async =>
-      ((await obj.createAsync(obj.fields._map, exParam)
-          as ClonableAsyncInterface)
-        ..setMap(obj.fields._map));
+  @override
+  Future<T> cloneAsync({dynamic exParam, bool deep = false}) async {
+    var obj = await createAsync(fields.valueMap, exParam) as ClonableAsyncMixin;
+    await obj.setMap(fields._map, deep: deep);
+    return obj as T;
+  }
+
+  @override
+  T clone({Object deep = false}) => throw UnimplementedError();
 
   @override
   Future<T?> fromJsonAsync(json, [dynamic exParam]) async {
@@ -46,17 +50,10 @@ mixin ClonableAsyncMixin<T extends Object>
   }
 
   @override
-  Future<void> setMap(Map json) async {
+  Future<void> setMap(Map json, {bool deep = false}) async {
     for (var field in fields) {
-      var obj = json[field.name];
-      if (obj is CloneField) {
-        obj = obj.value;
-      }
-      try {
-        field.value = await obj ?? field.defaultValue;
-      } catch (e) {
-        print(e);
-      }
+      field.value = await _getFieldObj(json: json, field: field, deep: deep) ??
+          field.defaultValue;
     }
   }
 
