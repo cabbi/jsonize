@@ -228,6 +228,11 @@ static void registerType(Type classType,
 
 Registers a new type to the **Jsonize** conversion handling (i.e. used for classes that does not implement **Jsonizable** interface)
 
+```dart
+// Registering the dart:ui Color class in Flutter
+Jsonize.registerType(Color, "!color", (c) => c.value, (c) => Color(c));
+```
+
 #### Parameters:
 - **_type_**: the type **jsonize** will be able to serialize.
 - **_classTypeCode_**: the class type token **jsonize** will use to identify this object type/class.

@@ -4,6 +4,11 @@ part of clonable;
 abstract class ClonableAsyncInterface<T> implements ClonableExInterface<T> {
   @override
   Future<void> setMap(Map json, {bool deep = false});
+  @override
+  Future<void> beforeDecodeEx(Map<String, dynamic> json, [dynamic exParam]);
+  @override
+  Future<void> afterDecodeEx(Map<String, dynamic> json, [dynamic exParam]);
+
   Future<T?> fromJsonAsync(json, [dynamic exParam]);
   Future<T> createAsync(Map<String, dynamic> json, [dynamic exParam]);
   Future<T> cloneAsync({dynamic exParam, bool deep = false});
@@ -43,9 +48,9 @@ mixin ClonableAsyncMixin<T>
   Future<T?> fromJsonAsync(json, [dynamic exParam]) async {
     ClonableAsyncInterface obj =
         await createAsync(json, exParam) as ClonableAsyncInterface;
-    obj.beforeDecodeEx(json, exParam);
+    await obj.beforeDecodeEx(json, exParam);
     await obj.setMap(json);
-    obj.afterDecodeEx(json, exParam);
+    await obj.afterDecodeEx(json, exParam);
     return obj as T;
   }
 
@@ -56,6 +61,14 @@ mixin ClonableAsyncMixin<T>
           field.defaultValue;
     }
   }
+
+  @override
+  Future<void> beforeDecodeEx(Map<String, dynamic> json,
+      [dynamic exParam]) async {}
+
+  @override
+  Future<void> afterDecodeEx(Map<String, dynamic> json,
+      [dynamic exParam]) async {}
 
   /// Jsonize will NOT call this method for an [ClonableAsync] object type!
   @override

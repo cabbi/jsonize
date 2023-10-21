@@ -1,5 +1,8 @@
+## 1.7.2
+- Fixed 'ClonableAsyncInterface' by setting 'beforeDecodeEx' and 'afterDecodeEx' as futures and waiting on 'fromJsonAsync'
+
 ## 1.7.1
-- Fixed issue with ClonableAsyncMixin not recognized as ClonableAsync when deserializing
+- Fixed issue with 'ClonableAsyncMixin' not recognized as 'ClonableAsync' when deserializing
   
 ## 1.7.0
 
