@@ -1,3 +1,6 @@
+## 1.7.2+1
+ - Warnings removal
+
 ## 1.7.2
 - Fixed 'ClonableAsyncInterface' by setting 'beforeDecodeEx' and 'afterDecodeEx' as futures and waiting on 'fromJsonAsync'
 
