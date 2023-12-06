@@ -26,9 +26,7 @@ class Item extends Clonable<Item> {
 
 class DateTimeItem extends Item {
   DateTime dt;
-  DateTimeItem(String code, [DateTime? dt])
-      : dt = dt ?? DateTime(0),
-        super(code);
+  DateTimeItem(super.code, [DateTime? dt]) : dt = dt ?? DateTime(0);
   factory DateTimeItem.empty() => DateTimeItem("");
 
   @override
@@ -48,7 +46,7 @@ class DateTimeItem extends Item {
 
 class ColorItem extends Item {
   int r, g, b;
-  ColorItem(String code, {this.r = 0, this.g = 0, this.b = 0}) : super(code);
+  ColorItem(super.code, {this.r = 0, this.g = 0, this.b = 0});
   factory ColorItem.empty() => ColorItem("");
 
   @override

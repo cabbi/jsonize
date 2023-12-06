@@ -1,4 +1,4 @@
-part of clonable;
+part of 'clonable.dart';
 
 /// The [ClonableAsyncInterface] definition
 abstract class ClonableAsyncInterface<T> implements ClonableExInterface<T> {
